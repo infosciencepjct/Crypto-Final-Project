@@ -231,13 +231,16 @@ elif selected_page =="Transactions":
     #Show all transactions
     if (choice == "Show All"):
         lst = selectall()
-        df = pd.DataFrame(lst,columns=['Num','Transaction Type','Sum','Crypto Coin','Date','Note'])
-        st.dataframe(df)
-      #Pie chart for coins transaction amount
-        coinslst = selectallCoins()
-        df = pd.DataFrame(coinslst)
-        fig = px.pie(df,names=0,values=1,title="Transactions distribution",labels={"0":"Coin ","1":"Amount "}, hole= 0.3)
-        st.plotly_chart(fig)
+        if lst:
+            df = pd.DataFrame(lst,columns=['Num','Transaction Type','Sum','Crypto Coin','Date','Note'])
+            st.dataframe(df)
+        #Pie chart for coins transaction amount
+            coinslst = selectallCoins()
+            df = pd.DataFrame(coinslst)
+            fig = px.pie(df,names=0,values=1,title="Transactions distribution",labels={"0":"Coin ","1":"Amount "}, hole= 0.3)
+            st.plotly_chart(fig)
+        else:
+            st.warning("There are no transactions. Please select the ")
 
     #Add a new investment
     elif (choice == "Add"):
@@ -319,22 +322,21 @@ elif selected_page =="Transactions":
                     nwtran_date = st.date_input("Date", value=tnwdate)
                     
                     nwtran_note = st.text_area("Notes",tnote)
-            else:
-                st.warning("You Have no transactions or you need to select one from the list")   
-                
-            if st.button("Update Transaction"):
-                update_tran(nwtran_type,nwtran_sum,nwtran_coin,nwtran_date,nwtran_note,tnum)
+                      
+                if st.button("Update Transaction"):
+                    update_tran(nwtran_type,nwtran_sum,nwtran_coin,nwtran_date,nwtran_note,tnum)
                 st.success("Successfully updated transaction number: {}".format(tnum))
                 lst2 = selectall()
                 # present the updated transaction
                 df2 = pd.DataFrame(lst2,columns=['Num','Transaction Type','Sum','Crypto Coin','Date','Note'])
                 with st.expander("Updated transactions"):
                     st.dataframe(df2)
+        else:
+            st.warning("You Have no transactions or you need to select one from the list")      
         
     # Delete an investment     
     elif (choice =="Delete"):
         st.subheader("Delete transaction")
-        st.write(num)
         with st.expander("See all transactions"):
             lst = selectall()
             df = pd.DataFrame(lst,columns=['Num','Transaction Type','Sum','Crypto Coin','Date','Note'])
@@ -342,9 +344,12 @@ elif selected_page =="Transactions":
         list_of_nums = [i[0] for i in selectall()]
         select_tran = st.selectbox("Transaction to Delete",list_of_nums)
         numselected = get_transaction(select_tran)
-        tnum = numselected[0][0]
-        st.warning("Are you sure you want to delete the transaction {}?".format(tnum))
-        if st.button("Delete"):
-            delete_tran(tnum)
-            st.success("Successfully deleted transaction number: {}".format(tnum))
+        if numselected:
+            tnum = numselected[0][0]
+            st.warning("Are you sure you want to delete the transaction {}?".format(tnum))
+            if st.button("Delete"):
+                delete_tran(tnum)
+                st.success("Successfully deleted transaction number: {}".format(tnum))
+        else:
+            st.warning("There are no transactions to delete")
 # --- End of Transactions page ---
